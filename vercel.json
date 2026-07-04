@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/yelp-reviews.py": {
+      "maxDuration": 30
+    }
+  },
   "headers": [
     {
       "source": "/embed.html",
