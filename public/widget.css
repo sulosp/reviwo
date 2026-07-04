@@ -295,6 +295,15 @@
     right: 4px;
 }
 
+.mdg-yelp-widget-root .carousel-wrap.is-static .carousel-arrow {
+    display: none;
+}
+
+.mdg-yelp-widget-root .carousel-arrow[disabled],
+.mdg-yelp-widget-root .carousel-arrow[hidden] {
+    display: none;
+}
+
 .mdg-yelp-widget-root .pagination {
     margin-top: 20px;
     display: flex;

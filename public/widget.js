@@ -163,8 +163,14 @@
         const headerStars = container.querySelector('[data-role="headerStars"]');
         const reviewCountEl = container.querySelector('[data-role="reviewCount"]');
         const wrap = container.querySelector('[data-role="carouselWrap"]');
+        const prevBtn = container.querySelector('[data-role="prevBtn"]');
+        const nextBtn = container.querySelector('[data-role="nextBtn"]');
+        const progressFill = container.querySelector('[data-role="progressFill"]');
+        const positionLabel = container.querySelector('[data-role="positionLabel"]');
+        const progressBar = container.querySelector('[data-role="progressBar"]');
 
         let reviews = [];
+        let yelpReviewCount = 0;
         let currentIndex = 0;
         let autoplayTimer;
         let visibleCount = 5;
@@ -182,10 +188,47 @@
             return Math.max(0, reviews.length - visibleCount);
         }
 
+        /** Small lists scroll one review; large lists jump a full page. */
+        function getStep() {
+            const maxIndex = getMaxIndex();
+            if (maxIndex <= 0) return 1;
+            if (maxIndex <= 7) return 1;
+            return visibleCount;
+        }
+
+        function formatPositionLabel() {
+            const total = reviews.length;
+            const maxIndex = getMaxIndex();
+            if (maxIndex <= 0) return '';
+
+            const start = currentIndex + 1;
+            const end = Math.min(currentIndex + visibleCount, total);
+
+            if (visibleCount === 1 && total <= 12) {
+                return `Review ${start} of ${total}`;
+            }
+
+            if (getStep() > 1) {
+                const page = Math.floor(currentIndex / getStep()) + 1;
+                const pageTotal = Math.ceil((maxIndex + 1) / getStep());
+                let label = `Page ${page} of ${pageTotal} · Showing ${start}–${end} of ${total}`;
+                if (yelpReviewCount > total) {
+                    label += ` (${yelpReviewCount} on Yelp)`;
+                }
+                return label;
+            }
+
+            let label = `Showing ${start}–${end} of ${total} reviews`;
+            if (yelpReviewCount > total) {
+                label += ` (${yelpReviewCount} on Yelp)`;
+            }
+            return label;
+        }
+
         function updateCarousel() {
             visibleCount = getVisibleCount();
             const maxIndex = getMaxIndex();
-            if (currentIndex > maxIndex) currentIndex = 0;
+            if (currentIndex > maxIndex) currentIndex = maxIndex;
 
             const card = track.querySelector('.review-card');
             if (!card) return;
@@ -194,24 +237,20 @@
             const cardWidth = card.offsetWidth + gap;
             track.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
 
-            const pageCount = maxIndex + 1;
-            const progressFill = container.querySelector('[data-role="progressFill"]');
-            const positionLabel = container.querySelector('[data-role="positionLabel"]');
-            const progressBar = container.querySelector('[data-role="progressBar"]');
+            const isStatic = maxIndex <= 0;
+            wrap.classList.toggle('is-static', isStatic);
+            prevBtn.hidden = isStatic;
+            nextBtn.hidden = isStatic;
+            pagination.hidden = isStatic;
 
-            if (pageCount <= 1) {
-                pagination.hidden = true;
-            } else {
-                pagination.hidden = false;
+            if (!isStatic) {
                 const pct = maxIndex === 0 ? 100 : (currentIndex / maxIndex) * 100;
                 progressFill.style.width = `${pct}%`;
                 progressBar.setAttribute('aria-valuenow', String(Math.round(pct)));
                 progressBar.setAttribute('aria-valuemin', '0');
                 progressBar.setAttribute('aria-valuemax', '100');
-
-                const start = currentIndex + 1;
-                const end = Math.min(currentIndex + visibleCount, reviews.length);
-                positionLabel.textContent = `Showing ${start}–${end} of ${reviews.length} reviews`;
+                progressBar.setAttribute('aria-label', formatPositionLabel());
+                positionLabel.textContent = formatPositionLabel();
             }
 
             notifyHeight();
@@ -226,14 +265,24 @@
         }
 
         function next() {
-            if (!reviews.length) return;
-            currentIndex = currentIndex >= getMaxIndex() ? 0 : currentIndex + 1;
+            const maxIndex = getMaxIndex();
+            if (maxIndex <= 0) return;
+            if (currentIndex >= maxIndex) {
+                currentIndex = 0;
+            } else {
+                currentIndex = Math.min(currentIndex + getStep(), maxIndex);
+            }
             updateCarousel();
         }
 
         function prev() {
-            if (!reviews.length) return;
-            currentIndex = currentIndex <= 0 ? getMaxIndex() : currentIndex - 1;
+            const maxIndex = getMaxIndex();
+            if (maxIndex <= 0) return;
+            if (currentIndex <= 0) {
+                currentIndex = maxIndex;
+            } else {
+                currentIndex = Math.max(currentIndex - getStep(), 0);
+            }
             updateCarousel();
         }
 
@@ -252,6 +301,7 @@
 
         function renderReviews(data) {
             reviews = (data.reviews || []).filter((review) => review.text);
+            yelpReviewCount = data.reviewCount ?? reviews.length;
             track.innerHTML = '';
 
             if (!reviews.length) {
