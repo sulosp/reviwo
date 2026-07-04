@@ -188,6 +188,27 @@
         const modalBackdrop = container.querySelector('[data-role="modalBackdrop"]');
         const modalClose = container.querySelector('[data-role="modalClose"]');
 
+        function showError(message) {
+            track.innerHTML = `<p class="widget-status error">${escapeHtml(message)}</p>`;
+            reviewCountEl.textContent = 'Could not load reviews';
+            notifyHeight();
+        }
+
+        function notifyHeight() {
+            if (window.parent === window) return;
+            window.parent.postMessage({
+                type: 'mdg-yelp-widget-resize',
+                height: container.offsetHeight
+            }, '*');
+        }
+
+        if (window.location.protocol === 'file:') {
+            showError(
+                'Open via the local dev server, not as a file. Run: python yelp-server.py — then visit http://localhost:8787/reviwo-widget.html'
+            );
+            return;
+        }
+
         let reviews = [];
         let yelpReviewCount = 0;
         let currentIndex = 0;
@@ -275,14 +296,6 @@
             notifyHeight();
         }
 
-        function notifyHeight() {
-            if (window.parent === window) return;
-            window.parent.postMessage({
-                type: 'mdg-yelp-widget-resize',
-                height: container.offsetHeight
-            }, '*');
-        }
-
         function next() {
             const maxIndex = getMaxIndex();
             if (maxIndex <= 0) return;
@@ -310,12 +323,6 @@
             if (reviews.length > visibleCount) {
                 autoplayTimer = setInterval(next, 5000);
             }
-        }
-
-        function showError(message) {
-            track.innerHTML = `<p class="widget-status error">${escapeHtml(message)}</p>`;
-            reviewCountEl.textContent = 'Could not load reviews';
-            notifyHeight();
         }
 
         function buildModalImagesHtml(images) {

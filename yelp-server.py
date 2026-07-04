@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import threading
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -180,8 +181,6 @@ def main() -> None:
     port = int(os.environ.get("PORT", "8787"))
     public_url = os.environ.get("PUBLIC_URL", f"http://localhost:{port}")
 
-    export_reviews_json(yelp_url=yelp_url)
-
     server = ThreadingHTTPServer((host, port), YelpHandler)
     print(f"Local dev:    {public_url}/reviwo-widget.html")
     print(f"Embed script: {public_url}/embed.js")
@@ -193,6 +192,16 @@ def main() -> None:
         '<div class="mdg-yelp-widget" data-yelp="https://www.yelp.com/biz/YOUR-BUSINESS" '
         'data-height="480"></div>'
     )
+    print("\nRefreshing cached reviews in the background…")
+
+    def refresh_cache() -> None:
+        try:
+            export_reviews_json(yelp_url=yelp_url)
+        except Exception as exc:
+            print(f"Background review export failed: {exc}", file=sys.stderr)
+
+    threading.Thread(target=refresh_cache, daemon=True).start()
+
     try:
         server.serve_forever()
     except KeyboardInterrupt:
