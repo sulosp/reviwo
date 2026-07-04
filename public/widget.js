@@ -323,6 +323,7 @@
             currentIndex = 0;
             updateCarousel();
             resetAutoplay();
+            requestAnimationFrame(notifyHeight);
         }
 
         async function fetchReviews(url) {
