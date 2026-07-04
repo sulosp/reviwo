@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parent
 CONFIG_PATH = ROOT / "yelp-config.json"
 BUSINESSES_PATH = ROOT / "businesses.json"
 REVIEWS_JSON_PATH = ROOT / "yelp-reviews.json"
-REVIEWS_DIR = ROOT / "reviews"
+REVIEWS_DIR = ROOT / "public" / "reviews"
 DEFAULT_YELP_URL = "https://www.yelp.com/biz/mobile-dog-grooming-irvine-2"
 DEFAULT_YELP_ALIAS = "mobile-dog-grooming-irvine-2"
 

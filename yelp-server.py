@@ -61,7 +61,7 @@ def export_all_businesses() -> int:
         except Exception:
             return 1
 
-    reviews_dir = ROOT / "reviews"
+    reviews_dir = ROOT / "public" / "reviews"
     reviews_dir.mkdir(exist_ok=True)
     failed = 0
 
@@ -86,7 +86,7 @@ def export_all_businesses() -> int:
 
 class YelpHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=str(ROOT), **kwargs)
+        super().__init__(*args, directory=str(ROOT / "public"), **kwargs)
 
     def end_headers(self):
         path = urlparse(self.path).path

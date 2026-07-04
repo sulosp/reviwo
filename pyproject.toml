@@ -10,9 +10,6 @@ dependencies = [
     "requests>=2.31.0",
 ]
 
-[tool.vercel]
-entrypoint = "api.yelp_reviews:handler"
-
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["api*"]
