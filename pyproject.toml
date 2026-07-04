@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "reviwo"
 version = "1.0.0"
@@ -7,4 +11,8 @@ dependencies = [
 ]
 
 [tool.vercel]
-entrypoint = "api.yelp-reviews:handler"
+entrypoint = "api.yelp_reviews:handler"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["api*"]

@@ -1,6 +1,12 @@
 {
+  "rewrites": [
+    {
+      "source": "/api/yelp-reviews",
+      "destination": "/api/yelp_reviews"
+    }
+  ],
   "functions": {
-    "api/yelp-reviews.py": {
+    "api/yelp_reviews.py": {
       "maxDuration": 30
     }
   },
