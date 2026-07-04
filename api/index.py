@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import json
 import sys
-import time
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
@@ -26,33 +24,8 @@ app.add_middleware(
 )
 
 
-def _debug_log(message: str, data: dict, hypothesis_id: str = "H1") -> None:
-    # #region agent log
-    try:
-        log_path = ROOT / "debug-cd155e.log"
-        with open(log_path, "a", encoding="utf-8") as f:
-            f.write(
-                json.dumps(
-                    {
-                        "sessionId": "cd155e",
-                        "hypothesisId": hypothesis_id,
-                        "location": "api/index.py",
-                        "message": message,
-                        "data": data,
-                        "timestamp": int(time.time() * 1000),
-                    }
-                )
-                + "\n"
-            )
-    except Exception:
-        pass
-    # #endregion
-
-
 @app.get("/api/yelp-reviews")
 def get_yelp_reviews(yelp: str = Query(..., description="Yelp business URL")):
-    _debug_log("API route hit", {"yelp": yelp, "hasYelp": True}, "H6")
-
     try:
         payload = fetch_yelp_reviews(yelp_url=yelp)
         return JSONResponse(
