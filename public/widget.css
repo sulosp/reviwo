@@ -118,7 +118,7 @@
 
 .mdg-yelp-widget-root .carousel-track {
     display: flex;
-    align-items: stretch;
+    align-items: flex-start;
     gap: 20px;
     transition: transform 0.6s ease;
 }
@@ -131,7 +131,7 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
-    min-height: 280px;
+    height: auto;
 }
 
 .mdg-yelp-widget-root .review-author {
