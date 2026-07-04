@@ -1,7 +1,7 @@
 """Local dev server for the Yelp reviews widget.
 
 Run:  python yelp-server.py
-Open: http://localhost:8787/elfsight-widget.html
+Open: http://localhost:8787/reviwo-widget.html
 
 Deploy to Vercel (production):
   Connect this repo to Vercel — no Root Directory override needed.
@@ -183,7 +183,7 @@ def main() -> None:
     export_reviews_json(yelp_url=yelp_url)
 
     server = ThreadingHTTPServer((host, port), YelpHandler)
-    print(f"Local dev:    {public_url}/elfsight-widget.html")
+    print(f"Local dev:    {public_url}/reviwo-widget.html")
     print(f"Embed script: {public_url}/embed.js")
     print(f"Reviews API:  {public_url}/api/yelp-reviews?yelp=...")
     print(f"\nDeploy: connect this repo to Vercel and push to GitHub.")

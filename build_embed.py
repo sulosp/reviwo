@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 REVIEWS_PATH = ROOT / "yelp-reviews.json"
-WIDGET_HTML = ROOT / "public" / "elfsight-widget.html"
+WIDGET_HTML = ROOT / "public" / "reviwo-widget.html"
 REVIEWS_DIR = ROOT / "public" / "reviews"
 DEFAULT_YELP_URL = "https://www.yelp.com/biz/mobile-dog-grooming-irvine-2"
 
@@ -65,7 +65,7 @@ def main() -> int:
         )
         print(f"Cached static fallback to public/reviews/{slug}.json")
 
-    print(f"Updated elfsight-widget.html for {yelp_url}")
+    print(f"Updated reviwo-widget.html for {yelp_url}")
     return 0
 
 
