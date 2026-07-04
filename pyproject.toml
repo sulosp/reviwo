@@ -7,4 +7,4 @@ dependencies = [
 ]
 
 [tool.vercel]
-entrypoint = "api/yelp-reviews.py:handler"
+entrypoint = "api.yelp-reviews:handler"
