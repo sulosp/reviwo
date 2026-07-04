@@ -45,6 +45,16 @@ class handler(BaseHTTPRequestHandler):
         qs = parse_qs(parsed.query)
         yelp_url = (qs.get("yelp") or [None])[0]
 
+        # #region agent log
+        try:
+            import time
+            log_path = ROOT / "debug-cd155e.log"
+            with open(log_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps({"sessionId": "cd155e", "hypothesisId": "H1", "location": "api/yelp_reviews.py:do_GET", "message": "API request received", "data": {"path": self.path, "hasYelp": bool(yelp_url)}, "timestamp": int(time.time() * 1000)}) + "\n")
+        except Exception:
+            pass
+        # #endregion
+
         if not yelp_url:
             write_json(
                 self,

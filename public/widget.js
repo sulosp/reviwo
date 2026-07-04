@@ -303,7 +303,13 @@
                 }
 
                 renderReviews(data);
+                // #region agent log
+                fetch('http://127.0.0.1:7250/ingest/3273ae57-8a9a-4f1a-bbe7-47eb7f896afd',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'cd155e'},body:JSON.stringify({sessionId:'cd155e',hypothesisId:'H5',location:'widget.js:loadReviews',message:'Reviews loaded',data:{source:apiUrl||jsonUrl||'inline',count:(data.reviews||[]).length,rating:data.rating},timestamp:Date.now()})}).catch(()=>{});
+                // #endregion
             } catch (error) {
+                // #region agent log
+                fetch('http://127.0.0.1:7250/ingest/3273ae57-8a9a-4f1a-bbe7-47eb7f896afd',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'cd155e'},body:JSON.stringify({sessionId:'cd155e',hypothesisId:'H5',location:'widget.js:loadReviews',message:'Reviews load failed',data:{error:String(error),apiUrl:apiUrl,jsonUrl:jsonUrl},timestamp:Date.now()})}).catch(()=>{});
+                // #endregion
                 showError('Could not load Yelp reviews.');
             }
         }
