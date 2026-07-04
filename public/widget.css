@@ -8,6 +8,13 @@
 }
 
 .mdg-yelp-widget-root {
+    --widget-header-bg: #fff;
+    --widget-card-bg: #fff;
+    --carousel-gap: 20px;
+    --cards-visible: 5;
+    width: 100%;
+    min-width: 0;
+    overflow-x: clip;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background: #fff;
     color: #111;
@@ -17,6 +24,7 @@
     max-width: 1280px;
     margin: 0 auto;
     padding: 40px;
+    min-width: 0;
 }
 
 .mdg-yelp-widget-root .widget-header {
@@ -25,7 +33,7 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 16px;
-    background: #f8f8f8;
+    background: var(--widget-header-bg);
     border-radius: 12px;
     padding: 20px 24px;
     margin-bottom: 24px;
@@ -112,23 +120,26 @@
 
 .mdg-yelp-widget-root .carousel-wrap {
     position: relative;
+    touch-action: pan-y pinch-zoom;
 }
 
 .mdg-yelp-widget-root .carousel-viewport {
     overflow: hidden;
+    width: 100%;
 }
 
 .mdg-yelp-widget-root .carousel-track {
     display: flex;
     align-items: flex-start;
-    gap: 20px;
+    gap: var(--carousel-gap);
     transition: transform 0.6s ease;
+    will-change: transform;
 }
 
 .mdg-yelp-widget-root .review-card {
-    flex: 0 0 calc((100% - 80px) / 5);
+    flex: 0 0 calc((100% - (var(--cards-visible) - 1) * var(--carousel-gap)) / var(--cards-visible));
     min-width: 0;
-    background: #f8f8f8;
+    background: var(--widget-card-bg);
     border-radius: 12px;
     padding: 20px;
     display: flex;
@@ -432,41 +443,237 @@
     font-size: 13px;
     color: rgba(17, 17, 17, 0.55);
     text-align: center;
-}
-
-@media (max-width: 1200px) {
-    .mdg-yelp-widget-root .review-card {
-        flex: 0 0 calc((100% - 60px) / 4);
-    }
+    max-width: 100%;
+    padding: 0 8px;
+    line-height: 1.4;
 }
 
 @media (max-width: 992px) {
-    .mdg-yelp-widget-root .review-card {
-        flex: 0 0 calc((100% - 40px) / 3);
+    .mdg-yelp-widget-root .reviews-widget {
+        padding: 24px;
+    }
+
+    .mdg-yelp-widget-root .widget-header {
+        padding: 16px 20px;
+    }
+
+    .mdg-yelp-widget-root .rating-number {
+        font-size: 24px;
     }
 }
 
 @media (max-width: 768px) {
     .mdg-yelp-widget-root .reviews-widget {
-        padding: 20px;
-    }
-
-    .mdg-yelp-widget-root .review-card {
-        flex: 0 0 calc((100% - 20px) / 2);
+        padding: 20px 16px;
     }
 
     .mdg-yelp-widget-root .carousel-arrow {
         opacity: 1;
+        width: 36px;
+        height: 36px;
+    }
+
+    .mdg-yelp-widget-root .carousel-arrow svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .mdg-yelp-widget-root .carousel-arrow.prev {
+        left: 0;
+    }
+
+    .mdg-yelp-widget-root .carousel-arrow.next {
+        right: 0;
+    }
+
+    .mdg-yelp-widget-root .review-text {
+        font-size: 15px;
+    }
+
+    .mdg-yelp-widget-root .carousel-progress {
+        max-width: 100%;
     }
 }
 
 @media (max-width: 480px) {
-    .mdg-yelp-widget-root .review-card {
-        flex: 0 0 100%;
+    .mdg-yelp-widget-root .reviews-widget {
+        padding: 16px 12px;
     }
 
     .mdg-yelp-widget-root .widget-header {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .mdg-yelp-widget-root .header-left {
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        align-content: center;
+        gap: 12px;
+    }
+
+    .mdg-yelp-widget-root .header-left > div {
+        text-align: center;
+    }
+
+    .mdg-yelp-widget-root .header-rating {
+        justify-content: center;
+    }
+
+    .mdg-yelp-widget-root .write-review-btn {
+        width: 100%;
+        text-align: center;
+        padding: 12px 21px;
+    }
+
+    .mdg-yelp-widget-root .review-card {
+        padding: 16px;
+    }
+
+    .mdg-yelp-widget-root .review-modal {
+        padding: 12px;
+    }
+
+    .mdg-yelp-widget-root .review-modal-dialog {
+        padding: 20px 16px;
+        border-radius: 12px;
+        max-height: 90vh;
+    }
+
+    .mdg-yelp-widget-root .carousel-position {
+        font-size: 12px;
+    }
+
+    .mdg-yelp-widget-root .pagination {
+        margin-top: 16px;
+    }
+}
+
+@media (max-width: 360px) {
+    .mdg-yelp-widget-root .reviews-widget {
+        padding: 12px 8px;
+    }
+
+    .mdg-yelp-widget-root .widget-header {
+        padding: 12px;
+        gap: 10px;
+        border-radius: 10px;
+        margin-bottom: 16px;
+    }
+
+    .mdg-yelp-widget-root .header-left {
+        gap: 10px;
+        min-width: 0;
+    }
+
+    .mdg-yelp-widget-root .yelp-logo {
+        width: 32px;
+        height: 32px;
+    }
+
+    .mdg-yelp-widget-root .rating-number {
+        font-size: 22px;
+    }
+
+    .mdg-yelp-widget-root .star {
+        width: 14px;
+        height: 14px;
+    }
+
+    .mdg-yelp-widget-root .review-count {
+        font-size: 12px;
+        line-height: 1.35;
+    }
+
+    .mdg-yelp-widget-root .write-review-btn {
+        font-size: 13px;
+        padding: 11px 16px;
+        border-radius: 20px;
+    }
+
+    .mdg-yelp-widget-root .review-card {
+        padding: 12px;
+        border-radius: 10px;
+    }
+
+    .mdg-yelp-widget-root .author-avatar,
+    .mdg-yelp-widget-root .author-avatar img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .mdg-yelp-widget-root .author-avatar.placeholder {
+        font-size: 16px;
+    }
+
+    .mdg-yelp-widget-root .author-name {
+        font-size: 14px;
+    }
+
+    .mdg-yelp-widget-root .review-date {
+        font-size: 12px;
+    }
+
+    .mdg-yelp-widget-root .card-stars .star {
+        width: 12px;
+        height: 12px;
+    }
+
+    .mdg-yelp-widget-root .review-text {
+        font-size: 14px;
+        line-height: 1.45;
+        -webkit-line-clamp: 4;
+    }
+
+    .mdg-yelp-widget-root .read-more-btn {
+        font-size: 13px;
+    }
+
+    .mdg-yelp-widget-root .review-image {
+        width: 60px;
+        height: 60px;
+    }
+
+    .mdg-yelp-widget-root .yelp-footer-logo {
+        height: 24px;
+    }
+
+    .mdg-yelp-widget-root .carousel-arrow {
+        display: none;
+    }
+
+    .mdg-yelp-widget-root .carousel-position {
+        font-size: 11px;
+        padding: 0 4px;
+        word-break: break-word;
+    }
+
+    .mdg-yelp-widget-root .pagination {
+        margin-top: 12px;
+        gap: 8px;
+    }
+
+    .mdg-yelp-widget-root .review-modal {
+        padding: 8px;
+    }
+
+    .mdg-yelp-widget-root .review-modal-dialog {
+        padding: 16px 12px;
+        border-radius: 10px;
+    }
+
+    .mdg-yelp-widget-root .review-modal-text {
+        font-size: 14px;
+    }
+
+    .mdg-yelp-widget-root .review-modal-close {
+        top: 8px;
+        right: 8px;
+        width: 28px;
+        height: 28px;
+        font-size: 20px;
     }
 }

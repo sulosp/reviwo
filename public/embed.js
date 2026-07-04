@@ -27,9 +27,17 @@
         container.setAttribute('data-mdg-embedded', 'true');
 
         var height = container.getAttribute('data-height') || '480';
+        var headerColor = container.getAttribute('data-header-color');
+        var cardColor = container.getAttribute('data-card-color');
         var isStaticHost = /\.github\.io$/i.test(new URL(base).hostname);
 
         var embedParams = new URLSearchParams({ yelp: yelpUrl });
+        if (headerColor) {
+            embedParams.set('headerColor', headerColor);
+        }
+        if (cardColor) {
+            embedParams.set('cardColor', cardColor);
+        }
         if (isStaticHost || container.hasAttribute('data-static')) {
             embedParams.set('static', '1');
         } else {

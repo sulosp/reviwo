@@ -12,6 +12,23 @@
             .replace(/"/g, '&quot;');
     }
 
+    function isValidWidgetColor(value) {
+        const color = String(value || '').trim();
+        if (!color) return false;
+        if (/^#[0-9a-fA-F]{3,8}$/.test(color)) return true;
+        if (/^(rgb|rgba|hsl|hsla)\([^)]+\)$/.test(color)) return true;
+        return false;
+    }
+
+    function applyWidgetColors(container, config) {
+        if (isValidWidgetColor(config.headerColor)) {
+            container.style.setProperty('--widget-header-bg', String(config.headerColor).trim());
+        }
+        if (isValidWidgetColor(config.cardColor)) {
+            container.style.setProperty('--widget-card-bg', String(config.cardColor).trim());
+        }
+    }
+
     function starSvg(filled) {
         return `<svg class="star${filled ? '' : ' empty'}" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
     }
@@ -74,17 +91,14 @@
             <div class="reviews-widget">
                 <header class="widget-header">
                     <div class="header-left">
-                        <svg class="yelp-logo" viewBox="0 0 40 40" aria-hidden="true">
-                            <rect width="40" height="40" rx="4" fill="#d32323" />
-                            <path fill="#fff" d="M20 8l2.2 6.8h7.1l-5.7 4.1 2.2 6.8L20 21.6l-5.8 4.1 2.2-6.8-5.7-4.1h7.1L20 8z" />
-                        </svg>
-                        <div>
+                       <img src="yelp-logo.png" alt="Yelp" width="128" height="auto" loading="lazy">
+                    
                             <div class="header-rating">
                                 <span class="rating-number" data-role="headerRating">—</span>
                                 <div class="stars" data-role="headerStars" aria-label="Rating"></div>
                             </div>
                             <p class="review-count" data-role="reviewCount">Loading Yelp reviews…</p>
-                        </div>
+                   
                     </div>
                     <a class="write-review-btn" href="${escapeHtml(yelpUrl)}" target="_blank" rel="noopener noreferrer">Write a review</a>
                 </header>
@@ -171,6 +185,7 @@
 
         container.classList.add('mdg-yelp-widget-root');
         container.innerHTML = widgetTemplate(yelpUrl);
+        applyWidgetColors(container, config);
 
         const track = container.querySelector('[data-role="carouselTrack"]');
         const pagination = container.querySelector('[data-role="pagination"]');
@@ -178,6 +193,7 @@
         const headerStars = container.querySelector('[data-role="headerStars"]');
         const reviewCountEl = container.querySelector('[data-role="reviewCount"]');
         const wrap = container.querySelector('[data-role="carouselWrap"]');
+        const viewport = container.querySelector('.carousel-viewport');
         const prevBtn = container.querySelector('[data-role="prevBtn"]');
         const nextBtn = container.querySelector('[data-role="nextBtn"]');
         const progressFill = container.querySelector('[data-role="progressFill"]');
@@ -214,6 +230,11 @@
         let currentIndex = 0;
         let autoplayTimer;
         let visibleCount = 5;
+
+        function getCarouselGap() {
+            const w = container.clientWidth || window.innerWidth;
+            return w <= 360 ? 12 : 20;
+        }
 
         function getVisibleCount() {
             const w = container.clientWidth || window.innerWidth;
@@ -270,10 +291,14 @@
             const maxIndex = getMaxIndex();
             if (currentIndex > maxIndex) currentIndex = maxIndex;
 
+            const gap = getCarouselGap();
+            container.style.setProperty('--cards-visible', String(visibleCount));
+            container.style.setProperty('--carousel-gap', `${gap}px`);
+            container.classList.toggle('is-compact', (container.clientWidth || window.innerWidth) <= 360);
+
             const card = track.querySelector('.review-card');
             if (!card) return;
 
-            const gap = 20;
             const cardWidth = card.offsetWidth + gap;
             track.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
 
@@ -470,10 +495,50 @@
         });
         wrap.addEventListener('mouseenter', () => clearInterval(autoplayTimer));
         wrap.addEventListener('mouseleave', resetAutoplay);
-        window.addEventListener('resize', () => {
-            updateCarousel();
-            setupReadMoreButtons();
-        });
+
+        let resizeTimer;
+        function handleLayoutChange() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                updateCarousel();
+                setupReadMoreButtons();
+            }, 100);
+        }
+
+        window.addEventListener('resize', handleLayoutChange);
+
+        if (typeof ResizeObserver !== 'undefined') {
+            const resizeObserver = new ResizeObserver(handleLayoutChange);
+            resizeObserver.observe(container);
+        }
+
+        if (viewport) {
+            let touchStartX = 0;
+            let touchStartY = 0;
+
+            viewport.addEventListener('touchstart', (event) => {
+                if (!event.changedTouches.length) return;
+                touchStartX = event.changedTouches[0].screenX;
+                touchStartY = event.changedTouches[0].screenY;
+            }, { passive: true });
+
+            viewport.addEventListener('touchend', (event) => {
+                if (!event.changedTouches.length) return;
+                const touch = event.changedTouches[0];
+                const deltaX = touch.screenX - touchStartX;
+                const deltaY = touch.screenY - touchStartY;
+
+                if (Math.abs(deltaX) < 40 || Math.abs(deltaX) < Math.abs(deltaY)) return;
+
+                if (deltaX < 0) {
+                    next();
+                } else {
+                    prev();
+                }
+                resetAutoplay();
+            }, { passive: true });
+        }
+
         modalBackdrop.addEventListener('click', closeReviewModal);
         modalClose.addEventListener('click', closeReviewModal);
         container.addEventListener('keydown', (event) => {
