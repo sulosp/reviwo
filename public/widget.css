@@ -169,17 +169,20 @@
     right: -2px;
     width: 18px;
     height: 18px;
-    background: #fff;
-    border-radius: 50%;
+    border-radius: 100%;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
-.mdg-yelp-widget-root .source-badge svg {
-    width: 12px;
-    height: 12px;
+.mdg-yelp-widget-root .source-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 100%;
+    display: block;
 }
 
 .mdg-yelp-widget-root .author-info {

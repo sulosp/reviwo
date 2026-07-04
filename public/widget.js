@@ -2,7 +2,7 @@
     'use strict';
 
     const DEFAULT_YELP_URL = 'https://www.yelp.com/biz/mobile-dog-grooming-irvine-2';
-    const yelpIcon = '<svg viewBox="0 0 24 24"><path fill="#d32323" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.5 14.5h-3v-3h3v3zm0-4h-3V7h3v5.5z"/></svg>';
+    const yelpBadgeImg = '<img src="yelp-badge.png" alt="Yelp" width="18" height="18" loading="lazy">';
 
     function escapeHtml(value) {
         return String(value)
@@ -130,7 +130,7 @@
             <div class="review-author">
                 <div class="author-avatar-wrap">
                     ${avatarHtml}
-                    <div class="source-badge">${yelpIcon}</div>
+                    <div class="source-badge">${yelpBadgeImg}</div>
                 </div>
                 <div class="author-info">
                     <div class="author-name">${escapeHtml(review.name)}</div>
