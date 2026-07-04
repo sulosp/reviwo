@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
+
 .mdg-yelp-widget-root,
 .mdg-yelp-widget-root * {
     margin: 0;
@@ -238,14 +240,11 @@
     border: none;
     background: none;
     color: #d32323;
+    font-family: 'Roboto', sans-serif;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 400;
     cursor: pointer;
     line-height: 1.4;
-}
-
-.mdg-yelp-widget-root .read-more-btn:hover {
-    text-decoration: underline;
 }
 
 .mdg-yelp-widget-root .review-modal {
