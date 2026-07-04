@@ -101,7 +101,12 @@
                         <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
                     </button>
                 </div>
-                <div class="pagination" data-role="pagination"></div>
+                <div class="pagination" data-role="pagination" hidden>
+                    <div class="carousel-progress" data-role="progressBar" aria-hidden="true">
+                        <div class="carousel-progress-fill" data-role="progressFill"></div>
+                    </div>
+                    <p class="carousel-position" data-role="positionLabel"></p>
+                </div>
             </div>
         `;
     }
@@ -189,18 +194,24 @@
             const cardWidth = card.offsetWidth + gap;
             track.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
 
-            pagination.innerHTML = '';
             const pageCount = maxIndex + 1;
-            for (let i = 0; i < pageCount; i++) {
-                const dot = document.createElement('button');
-                dot.className = 'pagination-dot' + (i === currentIndex ? ' active' : '');
-                dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
-                dot.addEventListener('click', () => {
-                    currentIndex = i;
-                    updateCarousel();
-                    resetAutoplay();
-                });
-                pagination.appendChild(dot);
+            const progressFill = container.querySelector('[data-role="progressFill"]');
+            const positionLabel = container.querySelector('[data-role="positionLabel"]');
+            const progressBar = container.querySelector('[data-role="progressBar"]');
+
+            if (pageCount <= 1) {
+                pagination.hidden = true;
+            } else {
+                pagination.hidden = false;
+                const pct = maxIndex === 0 ? 100 : (currentIndex / maxIndex) * 100;
+                progressFill.style.width = `${pct}%`;
+                progressBar.setAttribute('aria-valuenow', String(Math.round(pct)));
+                progressBar.setAttribute('aria-valuemin', '0');
+                progressBar.setAttribute('aria-valuemax', '100');
+
+                const start = currentIndex + 1;
+                const end = Math.min(currentIndex + visibleCount, reviews.length);
+                positionLabel.textContent = `Showing ${start}–${end} of ${reviews.length} reviews`;
             }
 
             notifyHeight();

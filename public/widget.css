@@ -281,39 +281,49 @@
     background: rgba(17, 17, 17, 1);
 }
 
-.mdg-yelp-widget-root .carousel-arrow.prev {
-    left: -8px;
-}
-
-.mdg-yelp-widget-root .carousel-arrow.next {
-    right: -8px;
-}
-
 .mdg-yelp-widget-root .carousel-arrow svg {
     width: 16px;
     height: 16px;
     fill: currentColor;
 }
 
+.mdg-yelp-widget-root .carousel-arrow.prev {
+    left: 4px;
+}
+
+.mdg-yelp-widget-root .carousel-arrow.next {
+    right: 4px;
+}
+
 .mdg-yelp-widget-root .pagination {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
     margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
 }
 
-.mdg-yelp-widget-root .pagination-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: rgba(17, 17, 17, 0.2);
-    border: none;
-    cursor: pointer;
-    padding: 0;
+.mdg-yelp-widget-root .carousel-progress {
+    width: 100%;
+    max-width: 280px;
+    height: 4px;
+    background: rgba(17, 17, 17, 0.12);
+    border-radius: 999px;
+    overflow: hidden;
 }
 
-.mdg-yelp-widget-root .pagination-dot.active {
+.mdg-yelp-widget-root .carousel-progress-fill {
+    height: 100%;
+    width: 0;
     background: #111;
+    border-radius: 999px;
+    transition: width 0.4s ease;
+}
+
+.mdg-yelp-widget-root .carousel-position {
+    font-size: 13px;
+    color: rgba(17, 17, 17, 0.55);
+    text-align: center;
 }
 
 @media (max-width: 1200px) {
