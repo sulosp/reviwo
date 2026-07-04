@@ -91,14 +91,16 @@
             <div class="reviews-widget">
                 <header class="widget-header">
                     <div class="header-left">
-                       <img src="yelp-logo.png" alt="Yelp" width="128" height="auto" loading="lazy">
-                    
+                        <a class="yelp-header-link" href="${escapeHtml(yelpUrl)}" target="_blank" rel="noopener noreferrer" aria-label="View business on Yelp">
+                            <img class="yelp-header-logo" src="yelp-logo.png" alt="Yelp" width="128" height="auto" loading="lazy">
+                        </a>
+                        <div>
                             <div class="header-rating">
                                 <span class="rating-number" data-role="headerRating">—</span>
                                 <div class="stars" data-role="headerStars" aria-label="Rating"></div>
                             </div>
                             <p class="review-count" data-role="reviewCount">Loading Yelp reviews…</p>
-                   
+                        </div>
                     </div>
                     <a class="write-review-btn" href="${escapeHtml(yelpUrl)}" target="_blank" rel="noopener noreferrer">Write a review</a>
                 </header>
