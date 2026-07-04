@@ -131,7 +131,7 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
-    height: auto;
+    min-height: 280px;
 }
 
 .mdg-yelp-widget-root .review-author {
@@ -218,7 +218,10 @@
     white-space: normal;
     word-wrap: break-word;
     overflow-wrap: break-word;
-    hyphens: auto;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+    overflow: hidden;
 }
 
 .mdg-yelp-widget-root .review-images {
