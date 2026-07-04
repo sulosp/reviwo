@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yelp Reviews Widget</title>
+    <link rel="stylesheet" href="widget.css">
+    <style>
+        html,
+        body {
+            margin: 0;
+            background: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mdg-yelp-widget"></div>
+    <script src="widget.js"></script>
+    <script>
+        (function () {
+            var params = new URLSearchParams(window.location.search);
+            var yelpUrl = params.get('yelp');
+            if (!yelpUrl) {
+                document.getElementById('mdg-yelp-widget').innerHTML =
+                    '<p class="widget-status error">Missing Yelp URL. Use data-yelp on the embed div.</p>';
+                return;
+            }
+            MDG_YelpWidget.init(document.getElementById('mdg-yelp-widget'), {
+                yelpUrl: yelpUrl,
+                apiUrl: params.get('api') || undefined,
+                staticMode: params.get('static') === '1',
+                baseOrigin: window.location.origin
+            });
+        })();
+    </script>
+</body>
+
+</html>
