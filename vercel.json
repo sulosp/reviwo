@@ -1,13 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [
-    {
-      "source": "/api/yelp-reviews",
-      "destination": "/api/yelp_reviews"
-    }
-  ],
   "functions": {
-    "api/yelp_reviews.py": {
+    "api/index.py": {
       "maxDuration": 30
     }
   },
