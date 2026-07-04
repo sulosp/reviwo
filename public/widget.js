@@ -107,6 +107,13 @@
                     </div>
                     <p class="carousel-position" data-role="positionLabel"></p>
                 </div>
+                <div class="review-modal" data-role="reviewModal" hidden aria-hidden="true">
+                    <div class="review-modal-backdrop" data-role="modalBackdrop"></div>
+                    <div class="review-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="reviewModalTitle">
+                        <button type="button" class="review-modal-close" data-role="modalClose" aria-label="Close review">&times;</button>
+                        <div class="review-modal-body" data-role="modalBody"></div>
+                    </div>
+                </div>
             </div>
         `;
     }
@@ -138,7 +145,10 @@
                 </div>
             </div>
             <div class="card-stars">${renderStars(review.rating)}</div>
-            <p class="review-text">${escapeHtml(review.text)}</p>
+            <div class="review-text-wrap">
+                <p class="review-text">${escapeHtml(review.text)}</p>
+                <button type="button" class="read-more-btn" hidden>Read more</button>
+            </div>
             ${imagesHtml}
             <div class="card-footer">
                 <img class="yelp-footer-logo" src="yelp-logo.png" alt="Yelp" width="52" height="18" loading="lazy">
@@ -167,6 +177,10 @@
         const progressFill = container.querySelector('[data-role="progressFill"]');
         const positionLabel = container.querySelector('[data-role="positionLabel"]');
         const progressBar = container.querySelector('[data-role="progressBar"]');
+        const reviewModal = container.querySelector('[data-role="reviewModal"]');
+        const modalBody = container.querySelector('[data-role="modalBody"]');
+        const modalBackdrop = container.querySelector('[data-role="modalBackdrop"]');
+        const modalClose = container.querySelector('[data-role="modalClose"]');
 
         let reviews = [];
         let yelpReviewCount = 0;
@@ -298,6 +312,69 @@
             notifyHeight();
         }
 
+        function buildModalImagesHtml(images) {
+            if (!images || !images.length) return '';
+            return `<div class="review-images">${images.map((url) =>
+                `<img class="review-image" src="${escapeHtml(url)}" alt="" loading="lazy">`
+            ).join('')}</div>`;
+        }
+
+        function openReviewModal(review) {
+            const avatarHtml = review.photoUrl
+                ? `<img class="author-avatar" src="${escapeHtml(review.photoUrl)}" alt="">`
+                : `<div class="author-avatar placeholder">${escapeHtml(review.initial || '?')}</div>`;
+
+            modalBody.innerHTML = `
+                <div class="review-author">
+                    <div class="author-avatar-wrap">
+                        ${avatarHtml}
+                        <div class="source-badge">${yelpBadgeImg}</div>
+                    </div>
+                    <div class="author-info">
+                        <div class="author-name" id="reviewModalTitle">${escapeHtml(review.name)}</div>
+                        <div class="review-date">${escapeHtml(review.date)}</div>
+                    </div>
+                </div>
+                <div class="card-stars">${renderStars(review.rating)}</div>
+                <p class="review-modal-text">${escapeHtml(review.text)}</p>
+                ${buildModalImagesHtml(review.images)}
+                <div class="card-footer">
+                    <img class="yelp-footer-logo" src="yelp-logo.png" alt="Yelp" width="52" height="18" loading="lazy">
+                </div>
+            `;
+
+            reviewModal.hidden = false;
+            reviewModal.setAttribute('aria-hidden', 'false');
+            clearInterval(autoplayTimer);
+            modalClose.focus();
+        }
+
+        function closeReviewModal() {
+            reviewModal.hidden = true;
+            reviewModal.setAttribute('aria-hidden', 'true');
+            modalBody.innerHTML = '';
+            resetAutoplay();
+        }
+
+        function setupReadMoreButtons() {
+            track.querySelectorAll('.review-card').forEach((card, index) => {
+                const textEl = card.querySelector('.review-text');
+                const btn = card.querySelector('.read-more-btn');
+                if (!textEl || !btn || !reviews[index]) return;
+
+                const isTruncated = textEl.scrollHeight > textEl.clientHeight + 1;
+                btn.hidden = !isTruncated;
+
+                if (isTruncated) {
+                    btn.onclick = (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        openReviewModal(reviews[index]);
+                    };
+                }
+            });
+        }
+
         function renderReviews(data) {
             reviews = (data.reviews || []).filter((review) => review.text);
             yelpReviewCount = data.reviewCount ?? reviews.length;
@@ -322,7 +399,10 @@
             currentIndex = 0;
             updateCarousel();
             resetAutoplay();
-            requestAnimationFrame(notifyHeight);
+            requestAnimationFrame(() => {
+                setupReadMoreButtons();
+                notifyHeight();
+            });
         }
 
         async function fetchReviews(url) {
@@ -379,7 +459,17 @@
         });
         wrap.addEventListener('mouseenter', () => clearInterval(autoplayTimer));
         wrap.addEventListener('mouseleave', resetAutoplay);
-        window.addEventListener('resize', updateCarousel);
+        window.addEventListener('resize', () => {
+            updateCarousel();
+            setupReadMoreButtons();
+        });
+        modalBackdrop.addEventListener('click', closeReviewModal);
+        modalClose.addEventListener('click', closeReviewModal);
+        container.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !reviewModal.hidden) {
+                closeReviewModal();
+            }
+        });
 
         loadReviews();
     }
