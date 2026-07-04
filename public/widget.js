@@ -118,7 +118,15 @@
         `;
     }
 
-    function buildCard(review) {
+    function buildFooterHtml(businessUrl) {
+        return `<div class="card-footer">
+                <a class="yelp-footer-link" href="${escapeHtml(businessUrl)}" target="_blank" rel="noopener noreferrer" aria-label="View business on Yelp">
+                    <img class="yelp-footer-logo" src="yelp-logo.png" alt="Yelp" width="64" height="22" loading="lazy">
+                </a>
+            </div>`;
+    }
+
+    function buildCard(review, businessUrl) {
         const card = document.createElement('article');
         card.className = 'review-card';
 
@@ -150,9 +158,7 @@
                 <button type="button" class="read-more-btn" hidden>Read more</button>
             </div>
             ${imagesHtml}
-            <div class="card-footer">
-                <img class="yelp-footer-logo" src="yelp-logo.png" alt="Yelp" width="52" height="18" loading="lazy">
-            </div>
+            ${buildFooterHtml(businessUrl)}
         `;
         return card;
     }
@@ -338,9 +344,7 @@
                 <div class="card-stars">${renderStars(review.rating)}</div>
                 <p class="review-modal-text">${escapeHtml(review.text)}</p>
                 ${buildModalImagesHtml(review.images)}
-                <div class="card-footer">
-                    <img class="yelp-footer-logo" src="yelp-logo.png" alt="Yelp" width="52" height="18" loading="lazy">
-                </div>
+                ${buildFooterHtml(yelpUrl)}
             `;
 
             reviewModal.hidden = false;
@@ -395,7 +399,7 @@
             const count = data.reviewCount ?? reviews.length;
             reviewCountEl.textContent = `${count} review${count === 1 ? '' : 's'} on Yelp`;
 
-            reviews.forEach((review) => track.appendChild(buildCard(review)));
+            reviews.forEach((review) => track.appendChild(buildCard(review, yelpUrl)));
             currentIndex = 0;
             updateCarousel();
             resetAutoplay();
