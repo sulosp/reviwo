@@ -141,8 +141,7 @@
             <p class="review-text">${escapeHtml(review.text)}</p>
             ${imagesHtml}
             <div class="card-footer">
-                <svg viewBox="0 0 24 24"><path fill="#d32323" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path fill="#fff" d="M12 6.5c-.8 0-1.5.7-1.5 1.5v4c0 .8.7 1.5 1.5 1.5s1.5-.7 1.5-1.5V8c0-.8-.7-1.5-1.5-1.5zm0 8.5c-.8 0-1.5.7-1.5 1.5S11.2 18 12 18s1.5-.7 1.5-1.5S12.8 15 12 15z"/></svg>
-                <span>Yelp</span>
+                <img class="yelp-footer-logo" src="yelp-logo.png" alt="Yelp" width="52" height="18" loading="lazy">
             </div>
         `;
         return card;

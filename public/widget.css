@@ -244,18 +244,12 @@
     padding-top: 12px;
     display: flex;
     align-items: center;
-    gap: 6px;
 }
 
-.mdg-yelp-widget-root .card-footer svg {
-    width: 20px;
-    height: 20px;
-}
-
-.mdg-yelp-widget-root .card-footer span {
-    font-size: 13px;
-    color: #f5ab4a;
-    font-weight: 500;
+.mdg-yelp-widget-root .yelp-footer-logo {
+    height: 18px;
+    width: auto;
+    display: block;
 }
 
 .mdg-yelp-widget-root .carousel-arrow {
