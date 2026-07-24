@@ -26,7 +26,6 @@
         var height = container.getAttribute('data-height') || '480';
         var headerColor = container.getAttribute('data-header-color');
         var cardColor = container.getAttribute('data-card-color');
-        var isStaticHost = /\.github\.io$/i.test(new URL(base).hostname);
         var iframe = container.querySelector('iframe[data-mdg-iframe="true"]');
 
         var embedParams = new URLSearchParams({ yelp: yelpUrl });
@@ -36,11 +35,7 @@
         if (cardColor) {
             embedParams.set('cardColor', cardColor);
         }
-        if (isStaticHost || container.hasAttribute('data-static')) {
-            embedParams.set('static', '1');
-        } else {
-            embedParams.set('api', base + '/api/yelp-reviews');
-        }
+        embedParams.set('api', base + '/api/yelp-reviews');
 
         var iframeSrc = base + '/embed.html?' + embedParams.toString();
 
@@ -83,7 +78,7 @@
 
                 observer.observe(container, {
                     attributes: true,
-                    attributeFilter: ['data-yelp', 'data-height', 'data-header-color', 'data-card-color', 'data-static']
+                    attributeFilter: ['data-yelp', 'data-height', 'data-header-color', 'data-card-color']
                 });
             }
         }
