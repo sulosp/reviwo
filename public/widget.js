@@ -67,21 +67,13 @@
         const yelpUrl = config.yelpUrl;
 
         if (yelpUrl) {
-            const slug = slugFromYelpUrl(yelpUrl);
-            const jsonUrl = slug ? `${origin}/reviews/${slug}.json` : null;
-
-            if (config.staticMode) {
-                return { jsonUrl, apiUrl: null };
-            }
-
             const apiBase = config.apiUrl || `${origin}/api/yelp-reviews`;
             const url = new URL(apiBase, origin);
             url.searchParams.set('yelp', yelpUrl);
-            return { jsonUrl, apiUrl: url.href };
+            return { apiUrl: url.href };
         }
 
         return {
-            jsonUrl: config.jsonUrl || `${origin}/yelp-reviews.json`,
             apiUrl: config.apiUrl || null
         };
     }
@@ -183,7 +175,7 @@
         config = config || {};
         const yelpUrl = config.yelpUrl || DEFAULT_YELP_URL;
         const baseOrigin = config.baseOrigin || window.location.origin;
-        const { jsonUrl, apiUrl } = resolveDataUrl(config, baseOrigin);
+        const { apiUrl } = resolveDataUrl(config, baseOrigin);
 
         container.classList.add('mdg-yelp-widget-root');
         container.innerHTML = widgetTemplate(yelpUrl);
@@ -465,17 +457,7 @@
 
                 if (!data) {
                     if (apiUrl) {
-                        try {
-                            data = await fetchReviews(apiUrl);
-                        } catch (err) {
-                            if (jsonUrl) {
-                                data = await fetchReviews(jsonUrl);
-                            } else {
-                                throw err;
-                            }
-                        }
-                    } else if (jsonUrl) {
-                        data = await fetchReviews(jsonUrl);
+                        data = await fetchReviews(apiUrl);
                     } else {
                         throw new Error('No review source configured');
                     }

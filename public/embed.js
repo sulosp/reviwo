@@ -13,23 +13,21 @@
     }
 
     var base = widgetBaseUrl();
+    var baseOrigin = new URL(base).origin;
     var containers = document.querySelectorAll('.mdg-yelp-widget');
 
-    containers.forEach(function (container) {
-        if (container.getAttribute('data-mdg-embedded') === 'true') return;
-
+    function renderContainer(container) {
         var yelpUrl = container.getAttribute('data-yelp');
         if (!yelpUrl) {
             console.warn('[mdg-yelp-widget] Missing required data-yelp attribute.');
             return;
         }
 
-        container.setAttribute('data-mdg-embedded', 'true');
-
         var height = container.getAttribute('data-height') || '480';
         var headerColor = container.getAttribute('data-header-color');
         var cardColor = container.getAttribute('data-card-color');
         var isStaticHost = /\.github\.io$/i.test(new URL(base).hostname);
+        var iframe = container.querySelector('iframe[data-mdg-iframe="true"]');
 
         var embedParams = new URLSearchParams({ yelp: yelpUrl });
         if (headerColor) {
@@ -44,21 +42,52 @@
             embedParams.set('api', base + '/api/yelp-reviews');
         }
 
-        var iframe = document.createElement('iframe');
-        iframe.src = base + '/embed.html?' + embedParams.toString();
-        iframe.title = 'Yelp Reviews';
-        iframe.loading = 'lazy';
-        iframe.setAttribute('frameborder', '0');
-        iframe.setAttribute('scrolling', 'no');
+        var iframeSrc = base + '/embed.html?' + embedParams.toString();
+
+        if (!iframe) {
+            iframe = document.createElement('iframe');
+            iframe.title = 'Yelp Reviews';
+            iframe.loading = 'lazy';
+            iframe.setAttribute('frameborder', '0');
+            iframe.setAttribute('scrolling', 'no');
+            iframe.setAttribute('data-mdg-iframe', 'true');
+
+            window.addEventListener('message', function (event) {
+                if (event.origin !== baseOrigin) return;
+                if (!event.data || event.data.type !== 'mdg-yelp-widget-resize') return;
+                if (event.source !== iframe.contentWindow) return;
+                iframe.style.height = event.data.height + 'px';
+            });
+
+            container.appendChild(iframe);
+        }
+
+        iframe.src = iframeSrc;
         iframe.style.cssText = 'width:100%;border:none;display:block;min-height:' + height + 'px;';
+        container.setAttribute('data-mdg-embedded', 'true');
+    }
 
-        window.addEventListener('message', function (event) {
-            if (event.origin !== new URL(base).origin) return;
-            if (!event.data || event.data.type !== 'mdg-yelp-widget-resize') return;
-            if (event.source !== iframe.contentWindow) return;
-            iframe.style.height = event.data.height + 'px';
-        });
+    containers.forEach(function (container) {
+        if (container.getAttribute('data-mdg-observed') !== 'true') {
+            container.setAttribute('data-mdg-observed', 'true');
 
-        container.appendChild(iframe);
+            if (typeof MutationObserver !== 'undefined') {
+                var observer = new MutationObserver(function (mutations) {
+                    for (var i = 0; i < mutations.length; i += 1) {
+                        if (mutations[i].type === 'attributes') {
+                            renderContainer(container);
+                            break;
+                        }
+                    }
+                });
+
+                observer.observe(container, {
+                    attributes: true,
+                    attributeFilter: ['data-yelp', 'data-height', 'data-header-color', 'data-card-color', 'data-static']
+                });
+            }
+        }
+
+        renderContainer(container);
     });
 })();

@@ -32,7 +32,7 @@ from yelp_fetch import (
 )
 
 
-def export_reviews_json(yelp_url: str | None = None) -> None:
+def export_reviews_json(yelp_url: str | None = None, rebuild_widget: bool = False) -> None:
     try:
         payload = fetch_yelp_reviews(yelp_url=yelp_url)
         REVIEWS_JSON_PATH.write_text(
@@ -41,11 +41,12 @@ def export_reviews_json(yelp_url: str | None = None) -> None:
         )
         print(f"Exported {len(payload.get('reviews', []))} reviews to yelp-reviews.json")
 
-        build_script = ROOT / "build_embed.py"
-        if build_script.exists():
-            import subprocess
+        if rebuild_widget:
+            build_script = ROOT / "build_embed.py"
+            if build_script.exists():
+                import subprocess
 
-            subprocess.run([sys.executable, str(build_script)], check=False)
+                subprocess.run([sys.executable, str(build_script)], check=False)
     except Exception as exc:
         print(f"Could not export yelp-reviews.json: {exc}", file=sys.stderr)
 
@@ -174,7 +175,7 @@ def main() -> None:
         raise SystemExit(export_all_businesses())
 
     if "--export" in sys.argv:
-        export_reviews_json(yelp_url=yelp_url)
+        export_reviews_json(yelp_url=yelp_url, rebuild_widget=True)
         return
 
     host = os.environ.get("HOST", "0.0.0.0")
@@ -196,7 +197,7 @@ def main() -> None:
 
     def refresh_cache() -> None:
         try:
-            export_reviews_json(yelp_url=yelp_url)
+            export_reviews_json(yelp_url=yelp_url, rebuild_widget=False)
         except Exception as exc:
             print(f"Background review export failed: {exc}", file=sys.stderr)
 

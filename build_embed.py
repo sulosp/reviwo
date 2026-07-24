@@ -27,8 +27,10 @@ WIDGET_TEMPLATE = """<!DOCTYPE html>
     <div id="mdg-yelp-widget"></div>
     <script src="widget.js"></script>
     <script>
+        var params = new URLSearchParams(window.location.search);
         MDG_YelpWidget.init(document.getElementById('mdg-yelp-widget'), {
-            yelpUrl: '__YELP_URL__'
+            yelpUrl: params.get('yelp') || '__YELP_URL__',
+            apiUrl: params.get('api') || (window.location.origin + '/api/yelp-reviews')
         });
     </script>
 </body>

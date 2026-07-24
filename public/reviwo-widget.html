@@ -6,27 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yelp Reviews Widget</title>
     <link rel="stylesheet" href="widget.css">
-    <style>
-        html,
-        body {
-            margin: 0;
-            width: 100%;
-            min-width: 0;
-        }
-
-        #mdg-yelp-widget {
-            width: 100%;
-            min-width: 0;
-        }
-    </style>
 </head>
 
 <body>
     <div id="mdg-yelp-widget"></div>
     <script src="widget.js"></script>
     <script>
+        var params = new URLSearchParams(window.location.search);
         MDG_YelpWidget.init(document.getElementById('mdg-yelp-widget'), {
-            yelpUrl: 'https://www.yelp.com/biz/mobile-dog-grooming-irvine-2'
+            yelpUrl: params.get('yelp') || 'https://www.yelp.com/biz/nicole-van-le-dds-village-dentistry-indianapolis-2',
+            apiUrl: params.get('api') || (window.location.origin + '/api/yelp-reviews')
         });
     </script>
 </body>
