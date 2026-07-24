@@ -91,7 +91,7 @@
                                 <span class="rating-number" data-role="headerRating">—</span>
                                 <div class="stars" data-role="headerStars" aria-label="Rating"></div>
                             </div>
-                            <p class="review-count" data-role="reviewCount">Loading Yelp reviews…</p>
+                            <p class="review-count" data-role="reviewCount">Loading Yelp review excerpts…</p>
                         </div>
                     </div>
                     <a class="write-review-btn" href="${escapeHtml(yelpUrl)}" target="_blank" rel="noopener noreferrer">Write a review</a>
@@ -200,7 +200,7 @@
 
         function showError(message) {
             track.innerHTML = `<p class="widget-status error">${escapeHtml(message)}</p>`;
-            reviewCountEl.textContent = 'Could not load reviews';
+            reviewCountEl.textContent = 'Could not load Yelp review excerpts';
             notifyHeight();
         }
 
@@ -412,7 +412,7 @@
 
             if (!reviews.length) {
                 track.innerHTML = '<p class="widget-status error">No reviews found on Yelp.</p>';
-                reviewCountEl.textContent = 'No reviews available';
+                reviewCountEl.textContent = 'No Yelp review excerpts available';
                 notifyHeight();
                 return;
             }
@@ -423,7 +423,7 @@
             headerStars.setAttribute('aria-label', `${rating} out of 5 stars`);
 
             const count = data.reviewCount ?? reviews.length;
-            reviewCountEl.textContent = `${count} review${count === 1 ? '' : 's'} on Yelp`;
+            reviewCountEl.textContent = `${count} review${count === 1 ? '' : 's'} on Yelp · showing up to 3 excerpts`;
 
             reviews.forEach((review) => track.appendChild(buildCard(review, yelpUrl)));
             currentIndex = 0;

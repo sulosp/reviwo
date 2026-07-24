@@ -20,6 +20,33 @@ REVIEWS_DIR = ROOT / "public" / "reviews"
 DEFAULT_YELP_URL = "https://www.yelp.com/biz/mobile-dog-grooming-irvine-2"
 DEFAULT_YELP_ALIAS = "mobile-dog-grooming-irvine-2"
 
+
+def load_local_env() -> None:
+    for env_path in (ROOT / ".env", ROOT / ".env.local"):
+        if not env_path.exists():
+            continue
+
+        try:
+            for raw_line in env_path.read_text(encoding="utf-8").splitlines():
+                line = raw_line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if line.startswith("export "):
+                    line = line[7:].strip()
+                if "=" not in line:
+                    continue
+
+                key, value = line.split("=", 1)
+                key = key.strip()
+                value = value.strip().strip('"').strip("'")
+                if key and key not in os.environ:
+                    os.environ[key] = value
+        except OSError:
+            pass
+
+
+load_local_env()
+
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -324,72 +351,13 @@ def load_cached_reviews(yelp_url: str) -> dict | None:
 def fetch_yelp_reviews(yelp_url: str | None = None) -> dict:
     session = requests.Session()
     yelp_url = resolve_yelp_url(yelp_url)
-    enc_biz_id = resolve_biz_id(yelp_url)
-    limit = max_review_count()
+    can_use_fusion = bool(os.environ.get("YELP_API_KEY"))
 
-    if enc_biz_id:
-        remember_business(yelp_url, enc_biz_id)
-        all_reviews: list[dict] = []
-        rating = None
-        review_count = None
-
-        for offset in range(0, limit, 10):
-            data = fetch_reviews_page(session, enc_biz_id, yelp_url, offset)
-            batch, rating, review_count = parse_gql_reviews(data)
-            if not batch:
-                break
-            all_reviews.extend(batch)
-            if len(batch) < 10:
-                break
-
-        if all_reviews:
-            return {
-                "source": yelp_url,
-                "rating": rating,
-                "reviewCount": review_count,
-                "reviews": all_reviews,
-            }
-
-    page = fetch_page(session, yelp_url)
-
-    if page.status_code == 403:
-        slug = slug_from_yelp_url(yelp_url) or "your-business"
-        raise RuntimeError(
-            f"Yelp blocked the server request for {yelp_url}. "
-            f"Add the business to businesses.json: "
-            f'{{"{slug}": {{"bizId": "YOUR_ID", "yelpUrl": "{yelp_url}"}}}}.'
-        )
-
-    page.raise_for_status()
-    enc_biz_id = extract_enc_biz_id(page.text, yelp_url)
-    if not enc_biz_id:
-        slug = slug_from_yelp_url(yelp_url) or "your-business"
-        raise RuntimeError(
-            f"Could not find yelp-biz-id for {yelp_url}. Add it to businesses.json: "
-            f'{{"{slug}": {{"bizId": "YOUR_ID", "yelpUrl": "{yelp_url}"}}}}.'
-        )
-
-    remember_business(yelp_url, enc_biz_id)
-
-    all_reviews = []
-    rating = None
-    review_count = None
-
-    for offset in range(0, limit, 10):
-        data = fetch_reviews_page(session, enc_biz_id, yelp_url, offset)
-        batch, rating, review_count = parse_gql_reviews(data)
-        if not batch:
-            break
-        all_reviews.extend(batch)
-        if len(batch) < 10:
-            break
-
-    if not all_reviews:
+    if can_use_fusion:
         return fetch_via_fusion(session, yelp_url)
 
-    return {
-        "source": yelp_url,
-        "rating": rating,
-        "reviewCount": review_count,
-        "reviews": all_reviews,
-    }
+    slug = slug_from_yelp_url(yelp_url) or "your-business"
+    raise RuntimeError(
+        f"YELP_API_KEY is not set. Add it to a root .env file or your deployment environment to load {yelp_url}. "
+        f'Example: {{"{slug}": {{"bizId": "YOUR_ID", "yelpUrl": "{yelp_url}"}}}} is no longer required when YELP_API_KEY is set.'
+    )

@@ -9,15 +9,9 @@
 </head>
 
 <body>
-    <div id="mdg-yelp-widget"></div>
-    <script src="widget.js"></script>
-    <script>
-        var params = new URLSearchParams(window.location.search);
-        MDG_YelpWidget.init(document.getElementById('mdg-yelp-widget'), {
-            yelpUrl: params.get('yelp') || 'https://www.yelp.com/biz/nicole-van-le-dds-village-dentistry-indianapolis-2',
-            apiUrl: params.get('api') || (window.location.origin + '/api/yelp-reviews')
-        });
-    </script>
+    <script src="embed.js" async></script>
+    <div class="mdg-yelp-widget"
+         data-yelp="https://www.yelp.com/biz/nicole-van-le-dds-village-dentistry-indianapolis-2"
+         data-height="480"></div>
 </body>
-
 </html>
