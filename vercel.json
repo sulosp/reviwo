@@ -40,6 +40,6 @@
     }
   ],
   "env": {
-    "MAX_REVIEWS": "50"
+    "MAX_REVIEWS": "3"
   }
 }

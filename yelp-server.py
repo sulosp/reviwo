@@ -18,72 +18,15 @@ from __future__ import annotations
 import json
 import os
 import sys
-import threading
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from yelp_fetch import (
     ROOT,
-    REVIEWS_JSON_PATH,
     fetch_yelp_reviews,
     load_cached_reviews,
-    slug_from_yelp_url,
 )
-
-
-def export_reviews_json(yelp_url: str | None = None, rebuild_widget: bool = False) -> None:
-    try:
-        payload = fetch_yelp_reviews(yelp_url=yelp_url)
-        REVIEWS_JSON_PATH.write_text(
-            json.dumps(payload, indent=2, ensure_ascii=False),
-            encoding="utf-8",
-        )
-        print(f"Exported {len(payload.get('reviews', []))} reviews to yelp-reviews.json")
-
-        if rebuild_widget:
-            build_script = ROOT / "build_embed.py"
-            if build_script.exists():
-                import subprocess
-
-                subprocess.run([sys.executable, str(build_script)], check=False)
-    except Exception as exc:
-        print(f"Could not export yelp-reviews.json: {exc}", file=sys.stderr)
-
-
-def export_all_businesses() -> int:
-    from yelp_fetch import load_businesses
-
-    businesses = load_businesses()
-    if not businesses:
-        print("businesses.json is empty — exporting default business only.")
-        try:
-            export_reviews_json()
-            return 0
-        except Exception:
-            return 1
-
-    reviews_dir = ROOT / "public" / "reviews"
-    reviews_dir.mkdir(exist_ok=True)
-    failed = 0
-
-    for slug, entry in businesses.items():
-        yelp_url = entry.get("yelpUrl") or f"https://www.yelp.com/biz/{slug}"
-        print(f"Fetching {slug} …")
-        try:
-            payload = fetch_yelp_reviews(yelp_url=yelp_url)
-            out_path = reviews_dir / f"{slug}.json"
-            out_path.write_text(
-                json.dumps(payload, indent=2, ensure_ascii=False),
-                encoding="utf-8",
-            )
-            count = len(payload.get("reviews", []))
-            print(f"  → {count} reviews saved to reviews/{slug}.json")
-        except Exception as exc:
-            print(f"  → failed: {exc}", file=sys.stderr)
-            failed += 1
-
-    return failed
 
 
 class YelpHandler(SimpleHTTPRequestHandler):
@@ -165,19 +108,6 @@ class YelpHandler(SimpleHTTPRequestHandler):
 
 
 def main() -> None:
-    yelp_url = None
-    if "--yelp" in sys.argv:
-        idx = sys.argv.index("--yelp")
-        if idx + 1 < len(sys.argv):
-            yelp_url = sys.argv[idx + 1]
-
-    if "--export-all" in sys.argv:
-        raise SystemExit(export_all_businesses())
-
-    if "--export" in sys.argv:
-        export_reviews_json(yelp_url=yelp_url, rebuild_widget=True)
-        return
-
     host = os.environ.get("HOST", "0.0.0.0")
     port = int(os.environ.get("PORT", "8787"))
     public_url = os.environ.get("PUBLIC_URL", f"http://localhost:{port}")
@@ -193,15 +123,9 @@ def main() -> None:
         '<div class="mdg-yelp-widget" data-yelp="https://www.yelp.com/biz/YOUR-BUSINESS" '
         'data-height="480"></div>'
     )
-    print("\nRefreshing cached reviews in the background…")
 
-    def refresh_cache() -> None:
-        try:
-            export_reviews_json(yelp_url=yelp_url, rebuild_widget=False)
-        except Exception as exc:
-            print(f"Background review export failed: {exc}", file=sys.stderr)
-
-    threading.Thread(target=refresh_cache, daemon=True).start()
+    if not os.environ.get("YELP_API_KEY"):
+        print("\nWARNING: YELP_API_KEY is not set. Reviews for new data-yelp URLs will fail.", file=sys.stderr)
 
     try:
         server.serve_forever()

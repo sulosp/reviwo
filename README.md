@@ -17,7 +17,7 @@ Paste this into your site (HTML block, footer, or page builder):
 
 Replace `YOUR-BUSINESS` with the slug from the Yelp business URL (everything after `/biz/`).
 
-The widget renders the Yelp rating, review count, and up to 3 review excerpts returned by Yelp's API.
+The widget always embeds **up to 3 reviews** for the business in `data-yelp`.
 
 ### Optional attributes
 
@@ -39,6 +39,18 @@ The widget renders the Yelp rating, review count, and up to 3 review excerpts re
      data-card-color="#f5f5f5"></div>
 ```
 
+## Yelp API plans
+
+Set `YELP_API_KEY` so any `data-yelp` URL can resolve.
+
+| Plan / API | Reviews in Reviwo |
+|------------|-------------------|
+| Places **Enhanced** (or higher) | Official Fusion Reviews API — up to **3** excerpts |
+| Places **Base** | Business lookup works; review excerpts are **not** included on Base ([plans](https://docs.developer.yelp.com/docs/plans)). Reviwo falls back to the public review feed when possible. |
+| [Private Reviews API](https://docs.developer.yelp.com/docs/private-reviews-api) | Partner-only (disabled by default). Tried automatically when your key has access. |
+
+If changing `data-yelp` fails, check that the URL contains `/biz/…` and that `YELP_API_KEY` is set in `.env` (local) and in Vercel env vars (deployed).
+
 ## Local development
 
 ```bash
@@ -49,16 +61,14 @@ Open [http://localhost:8787/reviwo-widget.html](http://localhost:8787/reviwo-wid
 
 Do not open the HTML file directly from disk — the dev server is required for the reviews API.
 
-To load reviews for any Yelp business URL, add `YELP_API_KEY` to a local `.env` file in the repo root:
-
 ```env
 YELP_API_KEY=your_yelp_api_key_here
+MAX_REVIEWS=3
 ```
-
-The local server and the deployed API both read that environment variable when it is available. Without it, the widget cannot fetch reviews for new Yelp URLs.
 
 ## Deploy your own
 
 1. Fork or clone this repo
 2. Connect it to [Vercel](https://vercel.com)
-3. Replace `https://reviwo-pi.vercel.app` in the embed snippet with your deployment URL
+3. Add `YELP_API_KEY` (and optionally `MAX_REVIEWS=3`) in the project environment
+4. Replace `https://reviwo-pi.vercel.app` in the embed snippet with your deployment URL

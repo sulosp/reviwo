@@ -5,7 +5,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -39,4 +39,8 @@ def get_yelp_reviews(yelp: str = Query(..., description="Yelp business URL")):
                 content=cached,
                 headers={"Cache-Control": "public, max-age=300"},
             )
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
+        # Keep {error} shape so the widget can show a useful message.
+        return JSONResponse(
+            status_code=502,
+            content={"error": str(exc)},
+        )

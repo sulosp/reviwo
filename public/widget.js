@@ -406,7 +406,7 @@
         }
 
         function renderReviews(data) {
-            reviews = (data.reviews || []).filter((review) => review.text);
+            reviews = (data.reviews || []).filter((review) => review.text).slice(0, 3);
             yelpReviewCount = data.reviewCount ?? reviews.length;
             track.innerHTML = '';
 
@@ -423,7 +423,7 @@
             headerStars.setAttribute('aria-label', `${rating} out of 5 stars`);
 
             const count = data.reviewCount ?? reviews.length;
-            reviewCountEl.textContent = `${count} review${count === 1 ? '' : 's'} on Yelp · showing up to 3 excerpts`;
+            reviewCountEl.textContent = `${count} review${count === 1 ? '' : 's'} on Yelp · showing ${reviews.length}`;
 
             reviews.forEach((review) => track.appendChild(buildCard(review, yelpUrl)));
             currentIndex = 0;
@@ -435,11 +435,26 @@
             });
         }
 
+        function reviewErrorMessage(data, status) {
+            if (!data || typeof data !== 'object') {
+                return `Failed to load reviews (${status})`;
+            }
+            if (typeof data.error === 'string' && data.error) return data.error;
+            if (typeof data.detail === 'string' && data.detail) return data.detail;
+            if (Array.isArray(data.detail) && data.detail[0]?.msg) return data.detail[0].msg;
+            return `Failed to load reviews (${status})`;
+        }
+
         async function fetchReviews(url) {
             const response = await fetch(url);
-            const data = await response.json();
+            let data = null;
+            try {
+                data = await response.json();
+            } catch (e) {
+                data = null;
+            }
             if (!response.ok) {
-                throw new Error(data.error || `Failed to load reviews (${response.status})`);
+                throw new Error(reviewErrorMessage(data, response.status));
             }
             return data;
         }
@@ -465,7 +480,8 @@
 
                 renderReviews(data);
             } catch (error) {
-                showError('Could not load Yelp reviews.');
+                const message = error && error.message ? error.message : 'Could not load Yelp reviews.';
+                showError(message);
             }
         }
 
