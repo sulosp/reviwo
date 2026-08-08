@@ -28,7 +28,8 @@ REVIEWS_JSON_PATH = ROOT / "yelp-reviews.json"
 REVIEWS_DIR = ROOT / "public" / "reviews"
 DEFAULT_YELP_URL = "https://www.yelp.com/biz/mobile-dog-grooming-irvine-2"
 DEFAULT_YELP_ALIAS = "mobile-dog-grooming-irvine-2"
-DEFAULT_MAX_REVIEWS = 3
+DEFAULT_MAX_REVIEWS = 10
+HARD_MAX_REVIEWS = 50
 
 
 def load_local_env() -> None:
@@ -70,7 +71,7 @@ HEADERS = {
 def max_review_count() -> int:
     raw = os.environ.get("MAX_REVIEWS", str(DEFAULT_MAX_REVIEWS))
     try:
-        return max(1, min(int(raw), 3))
+        return max(1, min(int(raw), HARD_MAX_REVIEWS))
     except ValueError:
         return DEFAULT_MAX_REVIEWS
 

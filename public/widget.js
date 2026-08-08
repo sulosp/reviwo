@@ -406,7 +406,7 @@
         }
 
         function renderReviews(data) {
-            reviews = (data.reviews || []).filter((review) => review.text).slice(0, 3);
+            reviews = (data.reviews || []).filter((review) => review.text);
             yelpReviewCount = data.reviewCount ?? reviews.length;
             track.innerHTML = '';
 

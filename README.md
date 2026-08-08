@@ -17,7 +17,7 @@ Paste this into your site (HTML block, footer, or page builder):
 
 Replace `YOUR-BUSINESS` with the slug from the Yelp business URL (everything after `/biz/`).
 
-The widget always embeds **up to 3 reviews** for the business in `data-yelp`.
+The widget embeds up to **10 reviews** by default (`MAX_REVIEWS`).
 
 ### Optional attributes
 
@@ -63,12 +63,12 @@ Do not open the HTML file directly from disk — the dev server is required for 
 
 ```env
 YELP_API_KEY=your_yelp_api_key_here
-MAX_REVIEWS=3
+MAX_REVIEWS=10
 ```
 
 ## Deploy your own
 
 1. Fork or clone this repo
 2. Connect it to [Vercel](https://vercel.com)
-3. Add `YELP_API_KEY` (and optionally `MAX_REVIEWS=3`) in the project environment
+3. Add `YELP_API_KEY` (and optionally `MAX_REVIEWS=10`) in the project environment
 4. Replace `https://reviwo-pi.vercel.app` in the embed snippet with your deployment URL
